@@ -1,0 +1,17 @@
+.flex-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-item {
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.item {
+  display: inline-block;
+  text-align: center;
+}

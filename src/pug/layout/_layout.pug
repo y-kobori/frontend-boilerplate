@@ -1,0 +1,26 @@
+block config-block
+  - title = pageName ? [pageName, siteName].join(' | ') : siteName
+
+doctype html
+html(lang="ja")
+  head
+    meta(charset="utf-8")
+    // meta
+    title= title
+
+    //- IEで「互換モード」で表示されるのを防ぐための指定
+    meta(http-equiv="X-UA-Compatible", content="IE=Edge")
+
+    // smartphone meta
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no")
+
+    // stylesheet
+    block stylesheet-block
+      //- link(rel="stylesheet", href=basePath + "/css/style.css")
+  body
+    .wrapper
+      block content-block
+
+    // javascript
+    block javascript-block
+      script(src=basePath + "/js/hoge.js")

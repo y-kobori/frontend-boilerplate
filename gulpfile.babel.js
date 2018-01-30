@@ -12,6 +12,7 @@ import source from 'vinyl-source-stream';
 import readConfig from 'read-config';
 import browserSync from 'browser-sync';
 import del from 'del';
+import chokidar from 'chokidar';
 import gulpLoadPlugins from 'gulp-load-plugins';
 const $ = gulpLoadPlugins();
 
@@ -145,11 +146,28 @@ gulp.task('watch', (done) => {
   done();
 });
 
+// watch new javascript file for transpile
+gulp.task('standby:transpile', (done) => {
+  const fileList = getEntryJsFileList();
+  const watcher = chokidar.watch(
+    `${DIR.SRC}/js/*.js`,
+    {
+      ignored: fileList.map(file => `${DIR.SRC}/js/${file}`),
+      persistent: true
+    }
+  );
+  watcher.on('add', (path) => {
+    console.log(`add file => ${path}`);
+    transpile(path.replace(/.*\//, ''), true);
+  });
+  done();
+});
+
 // serve
 gulp.task('serve',
   gulp.series(
     'watch',
-    () => {
+    (done) => {
       browserSync({
         server: {
           baseDir: DIR.DEST
@@ -164,7 +182,9 @@ gulp.task('serve',
         `${DIR.SRC}/scss/**/*.scss`,
         `${DIR.SRC}/js/**/*.js`
       ]).on('change', browserSync.reload);
-    }
+      done();
+    },
+    'standby:transpile'
   )
 );
 

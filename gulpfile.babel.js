@@ -16,7 +16,6 @@ import chokidar from 'chokidar';
 import gulpLoadPlugins from 'gulp-load-plugins';
 const $ = gulpLoadPlugins();
 
-// TODO: config系を別ファイルへ
 // const
 const DIR = {
   CONFIG: './src/config',
@@ -34,7 +33,7 @@ const getEntryJsFileList = () => {
   const files = fs.readdirSync(`${DIR.SRC}/js`);
   const fileList = files.filter((file) => {
     const filePath = `${DIR.SRC}/js/${file}`;
-    return fs.existsSync(filePath) && fs.statSync(filePath).isFile() && /(.*\.js)$/.test(filePath) && !/^_/.test(file);
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile() && /^[!_]*(\.js)$/.test(filePath);
   });
 
   return fileList;
@@ -157,8 +156,9 @@ gulp.task('standby:transpile', (done) => {
     }
   );
   watcher.on('add', (path) => {
-    console.log(`add file => ${path}`);
-    transpile(path.replace(/.*\//, ''), true);
+    gutil.log(`add file => ${path}`);
+    const fileName = path.replace(/^(.*\/)/, '');
+    !/^_/.test(fileName) && transpile(path.replace(/.*\//, ''), true);
   });
   done();
 });

@@ -18,36 +18,53 @@ const $ = gulpLoadPlugins();
 
 // const
 const DIR = {
-  CONFIG: './src/config',
-  SRC: './src',
-  DEST: './dest'
+  CONFIG : './src/config',
+  SRC    : './src',
+  DEST   : './dest'
 };
 const BASE_PATH = '';
 
 /**
  * jsのエントリポイントファイル 取得
- *
  * @return {Array} jsのエントリポイントファイル
  */
 const getEntryJsFileList = () => {
   const files = fs.readdirSync(`${DIR.SRC}/js`);
-  const fileList = files.filter((file) => {
+  const fileList = files.filter(file => {
     const filePath = `${DIR.SRC}/js/${file}`;
-    return fs.existsSync(filePath) && fs.statSync(filePath).isFile() && /^[!_]*(\.js)$/.test(filePath);
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile() && /^[^_]+(\.js)$/.test(filePath);
   });
 
   return fileList;
 };
 
 /**
- * トランスパイル
- *
- * @param {String} fileName エントリポイントファイル名
- * @param {Boolean} [isWatch] watchify利用フラグ
- *
- * @return {Object} gulpストリーム
+ * jsのwatch時の初回ビルド終了検知用
+ * @param  {Array}    fileList - エントリポイントファイル名
+ * @param  {Function} cb       - ビルド終了時のコールバック
  */
-const transpile = (fileName, isWatch = false) => {
+const startWatchScript = (fileList, cb) => {
+  const targetFileCount = fileList.length;
+  let builtFileCount = 0;
+
+  fileList.forEach(file => {
+    transpile(file, true, (e) => {
+      ++builtFileCount;
+      if (targetFileCount <= builtFileCount) {
+        cb();
+      }
+    });
+  })
+};
+
+/**
+ * トランスパイル
+ * @param  {String}   fileName        - エントリポイントファイル名
+ * @param  {Boolean}  [isWatch=false] - watchify利用フラグ
+ * @param  {Function} [cb=null]       - ビルド終了時コールバック
+ * @return {Object}                     gulpストリーム
+ */
+const transpile = (fileName, isWatch = false, cb) => {
   const bundler = browserify({
     entries: [`${DIR.SRC}/js/${fileName}`],
     transform: ['babelify'],
@@ -64,6 +81,7 @@ const transpile = (fileName, isWatch = false) => {
         title: 'Build Error',
         message: "<%= error.message %>"
       }))
+      .on('end', cb)
       .pipe(source(fileName))
       .pipe(buffer())
       .pipe($.sourcemaps.init({loadMaps: true}))
@@ -80,18 +98,16 @@ const transpile = (fileName, isWatch = false) => {
 };
 
 // clean
-gulp.task('clean', (done) => {
+gulp.task('clean', done => {
   del.sync(`${DIR.DEST}/**/*`);
   done();
 });
 
 // build js
-gulp.task('build:js', (done) => {
+gulp.task('build:js', done => {
   const fileList = getEntryJsFileList();
 
-  fileList.forEach((file) => {
-    transpile(file);
-  });
+  fileList.forEach(transpile);
   done();
 });
 
@@ -99,7 +115,7 @@ gulp.task('build:js', (done) => {
 gulp.task('build:css', () => {
   const pleeeaseConfig = readConfig(`${DIR.CONFIG}/pleeease.json`);
 
-  return gulp.src(`${DIR.SRC}/scss/**/*.scss`)
+  return gulp.src(`${DIR.SRC}/scss/[!_]*.scss`)
     .pipe($.plumber({
       errorHandler: $.notify.onError("<%= error.message %>")
     }))
@@ -118,6 +134,9 @@ gulp.task('build:html', () => {
   locals.basePath = BASE_PATH;
 
   return gulp.src(`${DIR.SRC}/pug/**/[!_]*.pug`)
+    .pipe($.plumber({
+      errorHandler: $.notify.onError("<%= error.message %>")
+    }))
     .pipe($.pug({
       locals,
       pretty: true,
@@ -130,23 +149,22 @@ gulp.task('build:html', () => {
 gulp.task('build', gulp.parallel('build:js', 'build:css', 'build:html'));
 
 // watch all
-gulp.task('watch', (done) => {
-  const fileList = getEntryJsFileList();
-  fileList.forEach((file) => {
-    transpile(file, true);
-  });
+gulp.task('watch', done => {
+  // js
+  startWatchScript(getEntryJsFileList(), done);
 
+  // css
   $.watch([`${DIR.SRC}/scss/**/*.scss`], gulp.series('build:css'));
 
+  // html
   $.watch([
     `${DIR.SRC}/pug/**/*.pug`,
     `${DIR.SRC}/config/pug-info.yml`
   ], gulp.series('build:html'));
-  done();
 });
 
 // watch new javascript file for transpile
-gulp.task('standby:transpile', (done) => {
+gulp.task('standby:transpile', done => {
   const fileList = getEntryJsFileList();
   const watcher = chokidar.watch(
     `${DIR.SRC}/js/*.js`,
@@ -167,7 +185,7 @@ gulp.task('standby:transpile', (done) => {
 gulp.task('serve',
   gulp.series(
     'watch',
-    (done) => {
+    done => {
       browserSync({
         server: {
           baseDir: DIR.DEST
@@ -189,4 +207,4 @@ gulp.task('serve',
 );
 
 // default
-gulp.task('default', gulp.series('build', 'serve'));
+gulp.task('default', gulp.series('build:css', 'serve'));

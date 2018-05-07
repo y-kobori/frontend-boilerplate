@@ -64,7 +64,7 @@ const startWatchScript = (fileList, cb) => {
  * @param  {Function} [cb=null]       - ビルド終了時コールバック
  * @return {Object}                     gulpストリーム
  */
-const transpile = (fileName, isWatch = false, cb) => {
+const transpile = (fileName, isWatch = false, cb = new Function()) => {
   const bundler = browserify({
     entries: [`${DIR.SRC}/js/${fileName}`],
     transform: ['babelify'],
@@ -107,7 +107,7 @@ gulp.task('clean', done => {
 gulp.task('build:js', done => {
   const fileList = getEntryJsFileList();
 
-  fileList.forEach(transpile);
+  fileList.forEach(file => transpile(file, false, () => {}));
   done();
 });
 

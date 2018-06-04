@@ -207,4 +207,4 @@ gulp.task('serve',
 );
 
 // default
-gulp.task('default', gulp.series('build:css', 'serve'));
+gulp.task('default', gulp.series(gulp.parallel('build:html', 'build:css'), 'serve'));

@@ -113,7 +113,7 @@ gulp.task('build:js', done => {
 
 // build css
 gulp.task('build:css', () => {
-  const pleeeaseConfig = readConfig(`${DIR.CONFIG}/pleeease.json`);
+  const config = readConfig(`${DIR.CONFIG}/autoprefixer.json`);
 
   return gulp.src(`${DIR.SRC}/scss/[!_]*.scss`)
     .pipe($.plumber({
@@ -122,8 +122,8 @@ gulp.task('build:css', () => {
     .pipe($.duration('compiled css'))
     .pipe($.sourcemaps.init())
     .pipe($.sassGlob())
-    .pipe($.sass().on('error', $.sass.logError))
-    .pipe($.pleeease(pleeeaseConfig))
+    .pipe($.sass({ outputStyle: 'compressed' }).on('error', $.sass.logError))
+    .pipe($.autoprefixer(config))
     .pipe($.sourcemaps.write('./maps'))
     .pipe(gulp.dest(`${DIR.DEST}${BASE_PATH}/css`));
 });

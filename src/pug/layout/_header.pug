@@ -1,0 +1,10 @@
+include ../mixins/_nav-item-dropdown
+
+header
+  nav.navbar.navbar-expand-lg.navbar-light.bg-info
+    span.navbar-brand.text-white(href="/") Frontend Boilerplate
+    .collapse.navbar-collapse
+      ul.navbar-nav.mr-auto
+        li.nav-item: a.nav-link.text-white(href="/") Home
+        +nav_item_dropdown('Sample', locals.params.sample1.productions)
+        li.nav-item: a.nav-link.text-white(href="/sub/sub-sample1.html") Sub Sample1

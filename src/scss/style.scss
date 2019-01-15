@@ -1,5 +1,8 @@
 // reset.css
-@import 'node_modules/reset-css/reset.css';
+// @import '~reset-css/reset';
+
+// bootstrap
+@import '~bootstrap/scss/bootstrap.scss';
 
 // config
 @import 'function', 'keyframes', 'mixin', 'variable';

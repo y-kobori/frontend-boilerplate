@@ -1,0 +1,67 @@
+block config-block
+  - title = page_name ? [page_name, meta.site_name].join(' | ') : meta.site_name
+
+doctype html
+html(lang="ja")
+  head
+    meta(charset="utf-8")
+    // meta
+    title=title
+    if meta.description
+      meta(name="description")
+    if meta.keywords && meta.keywords.length
+      meta(name="keywords", content=Array.isArray(meta.keywords) ? meta.keywords.join(', ') : meta.keywords)
+    if meta.favicon_url
+      link(rel="shortcut icon", href=meta.favicon_url, type="image/vnd.microsoft.icon")
+      link(rel="icon", href=meta.favicon_url, type="image/vnd.microsoft.icon")
+
+    meta(http-equiv="X-UA-Compatible", content="IE=Edge")
+    meta(name="format-detection", content="telephone=no")
+
+    // smartphone meta
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no")
+
+    if meta.webclipicon_url
+      link(rel="apple-touch-icon", href=meta.webclipicon_url)
+
+    // ogp
+    if facebook_app_id
+      meta(property="fb:app_id", content=meta.facebook_app_id)
+    if meta.url
+      meta(property="og_url", content=meta.url)
+    if meta.ogp_image_url
+      meta(property="og:image", content=meta.ogp_image_url)
+    if meta.ogp_image_width
+      meta(property="og:image:width", content=meta.ogp_image_width)
+    if meta.ogp_image_height
+      meta(property="og:image:height", content=meta.ogp_image_height)
+    meta(property="og:type", content=meta.ogp_type || "website")
+    meta(property="og.title", content=title)
+    meta(property="og:site_name", content=meta.site_name)
+    meta(property="og:description", content=meta.description)
+    meta(property="og:locale", content=meta.ogp_locale || "ja_JP")
+
+    // twitter card
+    meta(property="twitter:card", content=(meta.ogp_image_url ? 'summary_large_image' : 'summary'))
+    meta(property="twitter:title", content=title)
+    meta(property="twitter:description", content=meta.description)
+    if meta.ogp_image_url
+      meta(property="twitter:image", content=meta.ogp_image_url)
+    if meta.twitter_card_owner
+      meta(property="twitter:site", content=meta.twitter_card_owner)
+      meta(property="twitter:creator", content=meta.twitter_card_owner)
+
+    if meta.url
+      link(rel="canonical" href=meta.url)
+
+    // stylesheet
+    block stylesheet-block
+      link(rel="stylesheet", href=`${locals.dir.base}css/style.css`)
+  body
+    include _header.pug
+    main.container.mt-3
+      block content-block
+
+    // javascript
+    block javascript-block
+      script(src="/js/script.js")

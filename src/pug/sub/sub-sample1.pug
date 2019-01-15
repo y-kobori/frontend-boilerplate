@@ -1,0 +1,13 @@
+extends /layout/_default-layout
+
+prepend config-block
+  - page_name = 'sub sample1'
+
+//- append stylesheet-block
+
+//- append javascript-block
+
+block content-block
+  h1 サブディレクトリ サンプル
+  p.paragraph
+    | #{local.content}

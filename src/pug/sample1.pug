@@ -1,0 +1,13 @@
+extends /layout/_default-layout
+
+prepend config-block
+  - page_name = local.title
+
+//- append stylesheet-block
+
+//- append javascript-block
+
+block content-block
+  h1 マルチビルド サンプル
+  p
+    !=local.content

@@ -1,11 +1,12 @@
 const path = require('path');
 const glob = require('glob');
-const webpack = require('webpack');
 const readConfig = require('read-config');
 const _ = require('lodash');
 const globImporter = require('node-sass-glob-importer');
 const packageImporter = require('node-sass-package-importer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 
 const {pugDestFiles, pugDataMapper} = require('./pugDataMapper');
 
@@ -69,10 +70,12 @@ const sassLoader = [
   {
     loader: 'css-loader',
     options: {
-      importLoaders: 2
+      importLoaders: 3,
+      sourceMap: true
     }
   },
   'postcss-loader',
+  'resolve-url-loader',
   {
     loader: 'sass-loader',
     options: {
@@ -82,7 +85,19 @@ const sassLoader = [
       importer: [
         globImporter(),
         packageImporter()
-      ]
+      ],
+      sourceMap: true
+    }
+  }
+];
+
+const fontLoader = [
+  {
+    loader: 'file-loader',
+    options: {
+      name: '[name].[ext]',
+      outputPath: 'fonts/',
+      publicPath: path => `../fonts/${path}`
     }
   }
 ];
@@ -96,6 +111,7 @@ const config = {
     path: dirConfig.dest
   },
   stats: {
+    entrypoints: false,
     children: false
   },
   module: {
@@ -126,11 +142,8 @@ const config = {
         }
       },
       {
-        test: /\.(jpe?g|png|gif|svg)$/,
-        loader: 'file-loader',
-        options: {
-          name: '[path][name].[ext]'
-        }
+        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        use: fontLoader
       }
     ]
   },
@@ -163,9 +176,19 @@ const config = {
   plugins: [
     ...pugDataMapper,
     new ExtractTextPlugin('[name]'),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-    })
+    new CopyWebpackPlugin([{
+      from: { glob: '*', dot: false },
+      to: `${dirConfig.dest}/img/`
+    }], {
+      context: `${dirConfig.src}/img`
+    }),
+    new CopyWebpackPlugin([{
+      from: { glob: '*', dot: false },
+      to: `${dirConfig.dest}/fonts/`
+    }], {
+      context: `${dirConfig.src}/fonts`
+    }),
+    new WriteFilePlugin()
   ]
 };
 

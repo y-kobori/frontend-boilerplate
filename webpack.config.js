@@ -7,6 +7,7 @@ const packageImporter = require('node-sass-package-importer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
+const BuildNotifierPlugin = require('webpack-build-notifier');
 
 const { pugDestFiles, pugDataMapper } = require('./pugDataMapper');
 const { resolve } = require('./webpack.config.resolve');
@@ -28,6 +29,7 @@ const serverConfig = {
 };
 
 const pugConst = readConfig(`${dirConfig.src}/pug/constants.yml`);
+const projectConst = readConfig(path.resolve(__dirname, 'package.json'));
 
 // create src => dir mapping
 const extensionPattern = Object.keys(extensionConfig).join('|');
@@ -184,6 +186,14 @@ const config = {
         context: `${dirConfig.src}/fonts`,
       }
     ),
+    new BuildNotifierPlugin({
+      title: projectConst.name || 'Webpack Build',
+      logo: path.join(__dirname, 'icons/icon.png'),
+      successIcon: path.join(__dirname, 'icons/success.png'),
+      warningIcon: path.join(__dirname, 'icons/warning.png'),
+      failureIcon: path.join(__dirname, 'icons/failure.png'),
+      activateTerminalOnError: true,
+    }),
     new WriteFilePlugin(),
   ],
   resolve,

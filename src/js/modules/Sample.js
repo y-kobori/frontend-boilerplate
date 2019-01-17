@@ -4,7 +4,7 @@ class Sample {
   }
 
   greet() {
-    console.log(`Hello, I'm ${this.name}`);
+    console.log(`Hello, ${this.name}!`);
   }
 }
 

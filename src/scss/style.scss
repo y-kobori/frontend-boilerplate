@@ -1,5 +1,15 @@
 // reset.css
-@import 'node_modules/reset-css/reset.css';
+// @import '~reset-css/reset';
+
+// bootstrap
+@import '~bootstrap/scss/bootstrap.scss';
+
+// font awesome
+// $fa-font-path: '~@forawesome/fontawesome-free/webfonts' !default;
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/solid';
+@import '~@fortawesome/fontawesome-free/scss/regular';
+@import '~@fortawesome/fontawesome-free/scss/brands';
 
 // config
 @import 'function', 'keyframes', 'mixin', 'variable';

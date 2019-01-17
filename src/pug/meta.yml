@@ -1,0 +1,30 @@
+# 全体のサイト名 (og:site_name)
+site_name: frontend-boilerplate
+
+# meta description (og:description/twitter:description)
+description: frontend-boilerplate web page.
+
+# meta keywords
+keywords: ['frontend', 'boilerplate', 'keyword']
+
+# canonical/og:url
+# url: https://example.com
+
+# Facebook OGP/Twitter cards
+# ogp_image_url: https://example.com/img/ogp.jpg
+
+# og image size
+# ogp_image_width:
+# ogp_image_height
+
+# FacebookのアプリID
+# facebook_app_id:
+
+# Twitter cardsの管理者アカウント
+# twitter_card_owner:
+
+# ファビコン
+favicon_url: /favicon.ico
+
+# サイトをホーム画面に追加した際のアイコン
+webclipicon_url: https://example.com/webclipicon.png

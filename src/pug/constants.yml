@@ -1,0 +1,22 @@
+dir:
+  base: /
+  img: /img
+params:
+  index:
+    content: "index content"
+  sample1:
+    productions:
+      - filename: sample1-1
+        params:
+          title: sample1-1
+          content: "サンプル1-1ページです。<br/>マルチビルドによってテキストが振り分けられています。"
+      - filename: sample1-2
+        params:
+          title: sample1-2
+          content: "サンプル1-2ページです。<br/>マルチビルドによってテキストが振り分けられています。"
+      - filename: sample1-3
+        params:
+          title: sample1-3
+          content: "サンプル1-3ページです。<br/>マルチビルドによってテキストが振り分けられています。"
+  sub/sub-sample1:
+    content: "pugファイルをサブディレクトリに配置すると、htmlファイルもサブディレクトリに生成されます。"

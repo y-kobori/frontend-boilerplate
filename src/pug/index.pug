@@ -1,11 +1,224 @@
-extends /layout/_layout
+extends /layout/_default-layout
 
 prepend config-block
-  - pageName = 'index'
+  - page_name = 'index'
 
 //- append stylesheet-block
 
 //- append javascript-block
 
 block content-block
-  | hello, world!
+  img.img-fluid.d-block.mx-auto(src="/img/frontend.png", alt="frontend")
+  h1.mt-2 Introduction
+    h2 Tools
+    .container
+      p このプロジェクトでは以下の技術・ツールを採用しています。
+      ul
+        li: a(href="https://webpack.js.org/" target="_blank")
+          | webpack
+          i.fas.fa-external-link-alt.ml-1
+        li: a(href="https://pugjs.org/api/getting-started.html" target="_blank")
+          | pug
+          i.fas.fa-external-link-alt.ml-1
+        li: a(href="https://sass-lang.com/" target="_blank")
+          | sass(scss)
+          i.fas.fa-external-link-alt.ml-1
+        li: a(href="https://postcss.org/" target="_blank")
+          | postcss (autoprefixer, mqpacker)
+          i.fas.fa-external-link-alt.ml-1
+        li: a(href="https://babeljs.io/docs/en/learn" target="_blank")
+          | ES2015+(ECMAScript 6+)
+          i.fas.fa-external-link-alt.ml-1
+
+    h2 Usage
+    h3
+      i.fab.fa-html5.mr-1
+      | pug
+    .container
+      p pugはコンパイルすることでHTMLが生成できるテンプレートエンジンです。
+      p
+        mark src/pug
+        | ディレクトリ以下にコンパイルするpugファイルを配置します。
+      p
+        strong
+          | ※
+          mark _
+          | で始まるファイルはコンパイル対象から除外されます。
+
+      h4
+        i.fas.fa-folder.mr-1
+        | ディレクトリ構成
+      .container.mt-2
+        blockquote.blockquote.bg-light
+          small
+            | src
+            br
+            | ┗ pug
+            br
+            | &ensp;&ensp;┣ layout
+            br
+            | &ensp;&ensp;┃&ensp;&ensp;┗ _default-layout.pug … レイアウト外枠(html, head, bodyタグなど)
+            br
+            | &ensp;&ensp;┣ partials
+            br
+            | &ensp;&ensp;┃&ensp;&ensp;┗ _buttons.pug … パーシャル サンプル
+            br
+            | &ensp;&ensp;┣ sub
+            br
+            | &ensp;&ensp;┃&ensp;&ensp;┗ sub-sample1.pug … サブディレクトリ サンプル
+            br
+            | &ensp;&ensp;┣ index.pug … トップページ サンプル
+            br
+            | &ensp;&ensp;┗ sample1.pug … マルチビルド サンプル
+            a.text-danger(href="#multi-build")  ※1
+
+      h4
+        i.fas.fa-cog.mr-1
+        | 定数について
+      .container.mt-2
+        p yamlファイルで定義した定数をpugファイルで参照することができます。
+        ul
+          li
+            mark src/pug/meta.yml
+            | … metaタグなどに使用する定数
+          li
+            mark src/pug/constants.yml
+            | … pugファイル内で使用するその他の定数
+        p.mt-2
+          | pugファイル内で
+          mark locals.*
+          | で
+          mark meta.yml
+          | ,
+          mark constants.yml
+          | のデータが統合された全ての定数にアクセスできます。
+        p
+          mark constants.yml
+          | の
+          mark params
+          | キー以下にディレクトリ・ファイル名をキーとして定数を定義すると
+          br
+          mark local.*
+          | のキーにマッピングされ、pugファイル内でページごとの定数にアクセスできます。
+        p
+          | サンプルとしては
+          mark src/pug/sample1.pug
+          | を確認してください。
+        p
+          | (
+          mark locals.params.sample1
+          | →
+          mark local
+          | にマッピングされています)
+
+      h4#multi-build
+        i.fas.fa-sitemap.mr-1
+        | マルチビルド
+      .container.mt-2
+        p
+          | 1つのpugファイルから複数のhtmlファイルを生成することができます。
+          br
+          | (便宜上マルチビルドという名称で説明しています)
+        p
+          | マルチビルドで複数のhtmlファイルを生成するには、
+          mark constants.yml
+          | で定数を定義する際に
+          mark params.<page_id>.productions
+          | のキーを定義します。
+        p
+          mark filename
+          | のキーに定義した値が生成されるhtmlファイル名となります。
+        p
+          | 例)
+          mark src/pug/sample1.pug
+          | からマルチビルド
+        blockquote.blockquote.bg-light
+          small
+            | params:
+            br
+            | &ensp;index:
+            br
+            | &ensp;&ensp;content: "index content"
+            br
+            | &ensp;sample1:
+            br
+            | &ensp;&ensp;productions:
+            br
+            | &ensp;&ensp;&ensp;- filename: sample1-1
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp; params:
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp;&ensp;title: sample1-1
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp;&ensp;content: "サンプル1-1ページです。&lt;br/&gt;マルチビルドによってテキストが振り分けられています。"
+            br
+            | &ensp;&ensp;&ensp;- filename: sample1-2
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp; params:
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp;&ensp;title: sample1-2
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp;&ensp;content: "サンプル1-2ページです。&lt;br/&gt;マルチビルドによってテキストが振り分けられています。"
+            br
+            | &ensp;&ensp;&ensp;- filename: sample1-3
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp; params:
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp;&ensp;title: sample1-3
+            br
+            | &ensp;&ensp;&ensp;&nbsp;&nbsp;&ensp;content: "サンプル1-3ページです。&lt;br/&gt;マルチビルドによってテキストが振り分けられています。"
+
+    h3
+      i.fab.fa-css3-alt.mr-1
+      | sass
+    .container
+      p
+        | sassはコンパイルすることでCSSが生成できるメタ言語です。
+      p
+        mark src/scss
+        | ディレクトリ以下にコンパイルするsassファイルを配置します。
+      p
+        strong
+          | ※
+          mark _
+          | で始まるファイルはコンパイル対象から除外されます。
+
+    h3
+      i.fab.fa-js-square.mr-1
+      | javascript
+    .container
+      p
+        | このプロジェクトではjavascriptの実装において
+        strong ES2015+(ECMAScript 6+)
+        | での記述に対応しています。
+      p
+        mark src/js
+        | ディレクトリ以下にコンパイルするjavascriptファイルを配置します。
+      p
+        strong
+          | ※
+          mark _
+          | で始まるファイル・サブディレクトリ以下(直下に配置しているファイル以外)のファイルはビルド対象から除外されます。
+
+  h2 Library
+  .container
+    p
+      | このプロジェクトでは以下のライブラリを利用できるようnpm経由でインストール済みです。
+      br
+      | 不要な場合は適宜削除してください。
+    ul
+      li: a(href="https://jquery.com/" target="_blank")
+        | jQuery
+        i.fas.fa-external-link-alt.ml-1
+      li: a(href="https://getbootstrap.com/" target="_blank")
+        | Bootstrap
+        i.fas.fa-external-link-alt.ml-1
+      li: a(href="https://fontawesome.com/" target="_blank")
+        | Font Awesome
+        i.fas.fa-external-link-alt.ml-1
+      li: a(href="https://meyerweb.com/eric/tools/css/reset/" target="_blank")
+        | Reset CSS
+        i.fas.fa-external-link-alt.ml-1
+      li: a(href="https://lodash.com/docs/4.17.11" target="_blank")
+        | Lodash
+        i.fas.fa-external-link-alt.ml-1

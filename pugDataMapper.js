@@ -11,51 +11,46 @@ const pugDestFiles = [];
 
 function createProduction(template, dest = null, params = null) {
   const filename = dest
-    ? template.replace(/^pug\//, '').replace(/[^/]*\.pug$/, '') + dest.replace(/(\.pug)?$/, '.html')
+    ? template.replace(/^pug\//, '').replace(/[^/]*\.pug$/, '') +
+      dest.replace(/(\.pug)?$/, '.html')
     : template.replace(/^pug\//, '').replace(/\.pug$/, '.html');
-  const pageId = template.replace(/^pug\//, '').replace('\.pug', '');
-  const local = params
-    ? params || {}
-    : constants.params[pageId] || {};
+  const pageId = template.replace(/^pug\//, '').replace('.pug', '');
+  const local = params ? params || {} : constants.params[pageId] || {};
 
   pugDestFiles.push(filename);
 
   return new HtmlWebpackPlugin({
     template,
     filename,
-    templateParameters: Object.assign(
-      {},
-      constants,
-      { meta },
-      { local }
-    ),
+    templateParameters: Object.assign({}, constants, { meta }, { local }),
     inject: false,
     hash: true,
-    cache: true
+    cache: true,
   });
 }
 
-const pugDataMapper = _.flatten(glob.sync(
-  '**/*.pug',
-  {
-    cwd: srcDir,
-    ignore: [
-      '**/_*.pug'
-    ]
-  }
-).map(template => {
-  const pageId = template.replace(/^pug\//, '').replace('\.pug', '');
-  const local = constants.params[pageId] || {};
+const pugDataMapper = _.flatten(
+  glob
+    .sync('**/*.pug', {
+      cwd: srcDir,
+      ignore: ['**/_*.pug'],
+    })
+    .map(template => {
+      const pageId = template.replace(/^pug\//, '').replace('.pug', '');
+      const local = constants.params[pageId] || {};
 
-  // for single source to mass production
-  if (local.productions && Array.isArray(local.productions)) {
-    return local.productions.map(production => createProduction(template, production.filename, production.params));
-  }
+      // for single source to mass production
+      if (local.productions && Array.isArray(local.productions)) {
+        return local.productions.map(production =>
+          createProduction(template, production.filename, production.params)
+        );
+      }
 
-  return createProduction(template);
-}));
+      return createProduction(template);
+    })
+);
 
 module.exports = {
   pugDestFiles,
-  pugDataMapper
+  pugDataMapper,
 };

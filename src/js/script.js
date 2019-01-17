@@ -1,10 +1,10 @@
 // bootstrap
 import 'bootstrap';
 
-import Sample from './modules/Sample';
+import Sample from '_modules/Sample';
 
 const frontend = new Sample({
-  name: 'frontend world'
+  name: 'frontend world',
 });
 
 frontend.greet();

@@ -1,6 +1,3 @@
 module.exports = {
-  plugins: [
-    require('autoprefixer')(),
-    require('css-mqpacker')()
-  ]
+  plugins: [require('autoprefixer')(), require('css-mqpacker')()],
 };

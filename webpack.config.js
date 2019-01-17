@@ -8,62 +8,59 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 
-const {pugDestFiles, pugDataMapper} = require('./pugDataMapper');
+const { pugDestFiles, pugDataMapper } = require('./pugDataMapper');
+const { resolve } = require('./webpack.config.resolve');
 
 const dirConfig = {
   src: path.join(__dirname, 'src'),
-  dest: path.join(__dirname, 'public')
+  dest: path.join(__dirname, 'public'),
 };
 
 const extensionConfig = {
   pug: 'html',
   scss: 'css',
-  js: 'js'
+  js: 'js',
 };
 
 const serverConfig = {
   host: process.env.HOST || '0.0.0.0',
-  port: process.env.PORT || 3000
+  port: process.env.PORT || 3000,
 };
 
 const pugConst = readConfig(`${dirConfig.src}/pug/constants.yml`);
 
 // create src => dir mapping
 const extensionPattern = Object.keys(extensionConfig).join('|');
-const entry = glob.sync(
-  `**/*.+(${extensionPattern})`,
-  {
+const entry = glob
+  .sync(`**/*.+(${extensionPattern})`, {
     cwd: dirConfig.src,
-    ignore: [
-      `**/_*`,
-      'js/*/*.js'
-    ]
-  }
-).reduce((acc, filename) => {
-  const from = filename.replace(/.*\./, '');
-  const to = extensionConfig[from];
-  const dest = filename
-    .replace(/^pug\//, '')
-    .replace(/^scss\//, 'css/')
-    .replace(new RegExp(`\.${from}$`), `.${to}`);
+    ignore: [`**/_*`, 'js/*/*.js'],
+  })
+  .reduce((acc, filename) => {
+    const from = filename.replace(/.*\./, '');
+    const to = extensionConfig[from];
+    const dest = filename
+      .replace(/^pug\//, '')
+      .replace(/^scss\//, 'css/')
+      .replace(new RegExp(`${from}$`), `${to}`);
 
-  if (from === 'pug' && !_.includes(pugDestFiles, dest)) {
+    if (from === 'pug' && !_.includes(pugDestFiles, dest)) {
+      return acc;
+    }
+
+    acc[dest] = path.join(dirConfig.src, filename);
+
     return acc;
-  }
-
-  acc[dest] = path.join(dirConfig.src, filename);
-
-  return acc;
-}, {});
+  }, {});
 
 const pugLoader = [
   {
     loader: 'pug-loader',
     options: {
       root: path.resolve(`${dirConfig.src}/pug/`),
-      pretty: true
-    }
-  }
+      pretty: true,
+    },
+  },
 ];
 
 const sassLoader = [
@@ -71,24 +68,19 @@ const sassLoader = [
     loader: 'css-loader',
     options: {
       importLoaders: 3,
-      sourceMap: true
-    }
+      sourceMap: true,
+    },
   },
   'postcss-loader',
   'resolve-url-loader',
   {
     loader: 'sass-loader',
     options: {
-      includePaths: [
-        path.resolve(`${dirConfig.src}/scss`)
-      ],
-      importer: [
-        globImporter(),
-        packageImporter()
-      ],
-      sourceMap: true
-    }
-  }
+      includePaths: [path.resolve(`${dirConfig.src}/scss`)],
+      importer: [globImporter(), packageImporter()],
+      sourceMap: true,
+    },
+  },
 ];
 
 const fontLoader = [
@@ -97,9 +89,9 @@ const fontLoader = [
     options: {
       name: '[name].[ext]',
       outputPath: 'fonts/',
-      publicPath: path => `../fonts/${path}`
-    }
-  }
+      publicPath: path => `../fonts/${path}`,
+    },
+  },
 ];
 
 const config = {
@@ -108,29 +100,29 @@ const config = {
   entry,
   output: {
     filename: '[name]',
-    path: dirConfig.dest
+    path: dirConfig.dest,
   },
   stats: {
     entrypoints: false,
-    children: false
+    children: false,
   },
   module: {
     rules: [
       {
         test: /\.pug$/,
-        use: pugLoader
+        use: pugLoader,
       },
       {
         test: /\.scss$/,
         oneOf: [
           {
             resourceQuery: /inline/,
-            use: sassLoader
+            use: sassLoader,
           },
           {
-            use: ExtractTextPlugin.extract(sassLoader)
-          }
-        ]
+            use: ExtractTextPlugin.extract(sassLoader),
+          },
+        ],
       },
       {
         test: /\.js$/,
@@ -138,14 +130,14 @@ const config = {
         exclude: /node_modules/,
         options: {
           compact: true,
-          cacheDirectory: true
-        }
+          cacheDirectory: true,
+        },
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-        use: fontLoader
-      }
-    ]
+        use: fontLoader,
+      },
+    ],
   },
   devServer: {
     host: serverConfig.host,
@@ -162,34 +154,39 @@ const config = {
       hash: false,
       modules: false,
       timings: false,
-      version: false
-    }
+      version: false,
+    },
   },
   devtool: 'inline-source-map',
   cache: true,
-  resolve: {
-    extensions: ['.js', '.json', '*'],
-    alias: {
-      '@': path.join(__dirname, dirConfig.src, '.js')
-    }
-  },
   plugins: [
     ...pugDataMapper,
     new ExtractTextPlugin('[name]'),
-    new CopyWebpackPlugin([{
-      from: { glob: '*', dot: false },
-      to: `${dirConfig.dest}/img/`
-    }], {
-      context: `${dirConfig.src}/img`
-    }),
-    new CopyWebpackPlugin([{
-      from: { glob: '*', dot: false },
-      to: `${dirConfig.dest}/fonts/`
-    }], {
-      context: `${dirConfig.src}/fonts`
-    }),
-    new WriteFilePlugin()
-  ]
+    new CopyWebpackPlugin(
+      [
+        {
+          from: { glob: '*', dot: false },
+          to: `${dirConfig.dest}/img/`,
+        },
+      ],
+      {
+        context: `${dirConfig.src}/img`,
+      }
+    ),
+    new CopyWebpackPlugin(
+      [
+        {
+          from: { glob: '*', dot: false },
+          to: `${dirConfig.dest}/fonts/`,
+        },
+      ],
+      {
+        context: `${dirConfig.src}/fonts`,
+      }
+    ),
+    new WriteFilePlugin(),
+  ],
+  resolve,
 };
 
 module.exports = config;

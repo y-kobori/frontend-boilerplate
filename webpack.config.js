@@ -1,6 +1,7 @@
 const path = require('path');
 const glob = require('glob');
 const readConfig = require('read-config');
+const portfinder = require('portfinder');
 const _ = require('lodash');
 const globImporter = require('node-sass-glob-importer');
 const packageImporter = require('node-sass-package-importer');
@@ -199,4 +200,11 @@ const config = {
   resolve,
 };
 
-module.exports = config;
+portfinder.basePort = config.devServer.port;
+
+module.exports = portfinder.getPortPromise()
+  .then(port => {
+    config.devServer.port = port;
+    return config;
+  })
+  .catch(err => err);

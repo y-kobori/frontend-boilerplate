@@ -9,5 +9,15 @@ prepend config-block
 
 block content-block
   h1 サブディレクトリ サンプル
-  p.paragraph
+  p
     | #{local.content}
+
+  h2.mt-3 パーシャル サンプル
+  p パーシャルを利用することも可能です。
+  .wrapper
+    p.row
+      include /partials/_buttons
+    p.row
+      include /partials/_buttons
+    p.row
+      include /partials/_buttons

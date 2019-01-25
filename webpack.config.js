@@ -149,7 +149,7 @@ const config = {
     watchContentBase: true,
     openPage: path.relative('/', pugConst.dir.base),
     stats: {
-      assets: false,
+      assets: true,
       children: false,
       chunks: false,
       chunkModules: false,

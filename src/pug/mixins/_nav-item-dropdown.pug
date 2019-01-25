@@ -3,4 +3,4 @@ mixin nav_item_dropdown(title, productions)
     a.nav-link.dropdown-toggle.text-white#navbarDropdown(href="#" tole="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")= title
     .dropdown-menu(aria-labelledby="navbarDropdown")
       each production in productions
-        a.dropdown-item(href=`${production.filename}.html`) #{production.filename.replace('sample', '')}
+        a.dropdown-item(href=`/${production.filename}.html`) #{production.filename.replace('sample', '')}

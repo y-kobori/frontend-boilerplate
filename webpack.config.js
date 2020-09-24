@@ -2,15 +2,13 @@ const path = require('path');
 const glob = require('glob');
 const readConfig = require('read-config');
 const portfinder = require('portfinder');
-const _ = require('lodash');
-const globImporter = require('node-sass-glob-importer');
-const packageImporter = require('node-sass-package-importer');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const BuildNotifierPlugin = require('webpack-build-notifier');
 
-const { pugDestFiles, pugDataMapper } = require('./pugDataMapper');
+const pugDataMapper = require('./pugDataMapper');
 const { resolve } = require('./webpack.config.resolve');
 
 const dirConfig = {
@@ -19,7 +17,6 @@ const dirConfig = {
 };
 
 const extensionConfig = {
-  pug: 'html',
   scss: 'css',
   js: 'js',
 };
@@ -40,16 +37,10 @@ const entry = glob
     ignore: [`**/_*`, 'js/*/*.js'],
   })
   .reduce((acc, filename) => {
-    const from = filename.replace(/.*\./, '');
-    const to = extensionConfig[from];
     const dest = filename
       .replace(/^pug\//, '')
       .replace(/^scss\//, 'css/')
-      .replace(new RegExp(`${from}$`), `${to}`);
-
-    if (from === 'pug' && !_.includes(pugDestFiles, dest)) {
-      return acc;
-    }
+      .replace(/\.\S+$/, '');
 
     acc[dest] = path.join(dirConfig.src, filename);
 
@@ -67,23 +58,12 @@ const pugLoader = [
 ];
 
 const sassLoader = [
-  {
-    loader: 'css-loader',
-    options: {
-      importLoaders: 3,
-      sourceMap: true,
-    },
-  },
+  MiniCssExtractPlugin.loader,
+  'css-loader',
   'postcss-loader',
   'resolve-url-loader',
-  {
-    loader: 'sass-loader',
-    options: {
-      includePaths: [path.resolve(`${dirConfig.src}/scss`)],
-      importer: [globImporter(), packageImporter()],
-      sourceMap: true,
-    },
-  },
+  'sass-loader',
+  'import-glob-loader',
 ];
 
 const fontLoader = [
@@ -91,18 +71,20 @@ const fontLoader = [
     loader: 'file-loader',
     options: {
       name: '[name].[ext]',
-      outputPath: 'fonts/',
-      publicPath: path => `../fonts/${path}`,
+      outputPath: 'webfonts/',
+      publicPath: '../webfonts',
     },
   },
 ];
 
+const isProduction = process.env.NODE_ENV === 'production';
 const config = {
-  mode: process.env.NODE_ENV || 'development',
+  mode: isProduction ? 'production' : 'development',
+  devtool: isProduction ? '' : 'source-map',
   context: dirConfig.src,
   entry,
   output: {
-    filename: '[name]',
+    filename: '[name].js',
     path: dirConfig.dest,
   },
   stats: {
@@ -123,7 +105,7 @@ const config = {
             use: sassLoader,
           },
           {
-            use: ExtractTextPlugin.extract(sassLoader),
+            use: sassLoader,
           },
         ],
       },
@@ -160,33 +142,21 @@ const config = {
       version: false,
     },
   },
-  devtool: 'inline-source-map',
   cache: true,
   plugins: [
     ...pugDataMapper,
-    new ExtractTextPlugin('[name]'),
-    new CopyWebpackPlugin(
-      [
+    new FixStyleOnlyEntriesPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+    }),
+    new CopyPlugin({
+      patterns: [
         {
-          from: { glob: '*', dot: false },
-          to: `${dirConfig.dest}/img/`,
+          from: `${dirConfig.src}/(img|fonts)/**/*`,
+          to: dirConfig.dest,
         },
       ],
-      {
-        context: `${dirConfig.src}/img`,
-      }
-    ),
-    new CopyWebpackPlugin(
-      [
-        {
-          from: { glob: '*', dot: false },
-          to: `${dirConfig.dest}/fonts/`,
-        },
-      ],
-      {
-        context: `${dirConfig.src}/fonts`,
-      }
-    ),
+    }),
     new BuildNotifierPlugin({
       title: projectConst.name || 'Webpack Build',
       logo: path.join(__dirname, 'icons/icon.png'),
@@ -202,9 +172,11 @@ const config = {
 
 portfinder.basePort = config.devServer.port;
 
-module.exports = portfinder.getPortPromise()
-  .then(port => {
+module.exports = portfinder
+  .getPortPromise()
+  .then((port) => {
     config.devServer.port = port;
+
     return config;
   })
-  .catch(err => err);
+  .catch((err) => err);

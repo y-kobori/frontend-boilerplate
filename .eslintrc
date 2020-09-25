@@ -1,39 +1,35 @@
 {
-    "env": {
-        "browser": true,
-        "es6": true
-    },
-    "globals": {
-      "process": false
-    },
-    "extends": [
-      "semistandard",
-      "prettier"
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "globals": {
+    "process": false
+  },
+  "extends": [
+    "semistandard",
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "prettier"
+  ],
+  "rules": {
+    "prettier/prettier": [
+      "error"
     ],
-    "parserOptions": {
-        "ecmaVersion": 2018,
-        "sourceType": "module"
-    },
-    "plugins": [
-      "prettier"
-    ],
-    "rules": {
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "prettier/prettier": [
-            "error"
-        ],
-        "standard/array-bracket-even-spacing": "off",
-        "standard/computed-property-even-spacing": "off",
-        "standard/object-curly-even-spacing": "off"
-    },
-    settings: {
-        "import/resolver": {
-            "webpack": {
-                "config": "./webpack.config.resolve.js"
-            }
-        }
+    "standard/array-bracket-even-spacing": "off",
+    "standard/computed-property-even-spacing": "off",
+    "standard/object-curly-even-spacing": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "webpack": {
+        "config": "./webpack.config.resolve.js"
+      }
     }
+  }
 }

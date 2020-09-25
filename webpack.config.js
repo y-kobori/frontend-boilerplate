@@ -1,6 +1,7 @@
 const path = require('path');
 const glob = require('glob');
-const readConfig = require('read-config');
+const loadConfig = require('load-config-file');
+const yaml = require('js-yaml');
 const portfinder = require('portfinder');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -10,6 +11,9 @@ const BuildNotifierPlugin = require('webpack-build-notifier');
 
 const pugDataMapper = require('./pugDataMapper');
 const { resolve } = require('./webpack.config.resolve');
+
+loadConfig.register(['yaml', 'yml'], yaml.safeLoad);
+loadConfig.register('json', JSON.parse);
 
 const dirConfig = {
   src: path.join(__dirname, 'src'),
@@ -26,8 +30,10 @@ const serverConfig = {
   port: process.env.PORT || 3000,
 };
 
-const pugConst = readConfig(`${dirConfig.src}/pug/constants.yml`);
-const projectConst = readConfig(path.resolve(__dirname, 'package.json'));
+const pugConst = loadConfig.loadSync(`${dirConfig.src}/pug/constants.yml`);
+const projectConst = loadConfig.loadSync(
+  path.resolve(__dirname, 'package.json')
+);
 
 // create src => dir mapping
 const extensionPattern = Object.keys(extensionConfig).join('|');

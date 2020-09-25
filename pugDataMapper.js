@@ -1,12 +1,15 @@
 const path = require('path');
 const glob = require('glob');
-const readConfig = require('read-config');
+const loadConfig = require('load-config-file');
+const yaml = require('js-yaml');
 const _ = require('lodash');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+loadConfig.register(['yaml', 'yml'], yaml.safeLoad);
+
 const srcDir = path.join(__dirname, 'src');
-const meta = readConfig(`${srcDir}/pug/meta.yml`);
-const constants = readConfig(`${srcDir}/pug/constants.yml`);
+const meta = loadConfig.loadSync(`${srcDir}/pug/meta.yml`);
+const constants = loadConfig.loadSync(`${srcDir}/pug/constants.yml`);
 
 function createProduction(template, dest = null, params = null) {
   const filename = dest

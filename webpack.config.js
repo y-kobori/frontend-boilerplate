@@ -86,7 +86,7 @@ const fontLoader = [
 const isProduction = process.env.NODE_ENV === 'production';
 const config = {
   mode: isProduction ? 'production' : 'development',
-  devtool: isProduction ? '' : 'source-map',
+  devtool: isProduction ? '' : 'inline-source-map',
   context: dirConfig.src,
   entry,
   output: {
